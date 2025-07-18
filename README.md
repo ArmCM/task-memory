@@ -1,4 +1,4 @@
-# Laravel Presentable
+# Laravel Task memory
 
 ![Banner](https://banners.beyondco.de/Task%20Memory.png?theme=light&packageManager=composer+require&packageName=armcm%2Ftask-memory&pattern=plus&style=style_1&description=Manage+a+task+list+in+memory&md=1&showWatermark=1&fontSize=100px&images=https%3A%2F%2Fwww.php.net%2Fimages%2Flogos%2Fphp-logo.svg)
 
@@ -13,29 +13,28 @@ composer require armcm/task-memory
 ```
 
 ## Usage
+**Install in a project.**
 
-### Clone project
-```bash
-git clone https://github.com/tuusuario/task-memory.git
-cd task-memory
-composer install
-```
-
-
-### Fresh project
 ```shell
 mkdir demo-task-app
-cd demo-task-app
-composer init
-...
-composer require arm-cm/task-memory
 
+cd demo-task-app
+
+composer init # Follow prompts
+
+composer require arm-cm/task-memory
+```
+
+Create file **index php**
+
+```
 demo-task-app/
 ├── vendor/
 ├── composer.json
 └── index.php
 ```
 
+### Index.php
 ```php
 <?php
 
@@ -54,7 +53,15 @@ print_r($collection->toArray());
 echo $collection->toJson();
 ```
 
-Methods that can be used in Task class
+Run script
+
+```
+php index.php
+```
+
+## API Reference
+
+### Methods that can be used in Task class
 
 ```php
 use ArmCm\TaskMemory\Task;
@@ -69,8 +76,7 @@ $task->update('New title', 'New description');
 $task->update('New title');
 ```
 
-Methods that can be used in TaskCollection class
-
+### Methods that can be used in TaskCollection class
 
 ```php
 use ArmCm\TaskMemory\TaskCollection;
@@ -91,7 +97,6 @@ $collection->toArray(): array — Converts the task collection to an associative
 
 $collection->toJson(): string — Converts the task collection to a JSON string
 ```
-
 
 ### Testing
 
