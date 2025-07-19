@@ -11,12 +11,13 @@ class Task
 
     const string DONE = 'done';
     const string IN_PROGRESS = 'in progress';
+    const string PENDING = 'pending';
 
     public function __construct(string $title, string $description)
     {
         $this->title = $title;
         $this->description = $description;
-        $this->status = 'pending';
+        $this->status = self::PENDING;
     }
 
     public function assignId(int $id): void
