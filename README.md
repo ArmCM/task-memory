@@ -13,7 +13,8 @@ composer require armcm/task-memory
 ```
 
 ## Usage
-**Install in a project.**
+
+Install the package in your project:
 
 ```shell
 mkdir demo-task-app
