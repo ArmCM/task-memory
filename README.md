@@ -1,4 +1,4 @@
-# Laravel Task memory
+# Task memory
 
 ![Banner](https://banners.beyondco.de/Task%20Memory.png?theme=light&packageManager=composer+require&packageName=armcm%2Ftask-memory&pattern=plus&style=style_1&description=Manage+a+task+list+in+memory&md=1&showWatermark=1&fontSize=100px&images=https%3A%2F%2Fwww.php.net%2Fimages%2Flogos%2Fphp-logo.svg)
 
@@ -90,9 +90,7 @@ $collection->all(): array — Returns all tasks as an array of Task objects
 
 $collection->count(): int — Returns the total number of tasks in the collection
 
-$collection->filterByStatus(string $status): array — Returns all tasks that match the given status
-
-$collection->filterById(int $id): array — Returns all tasks that match the given ID
+$collection->findBy(string $attribute, string|int $value): array — Returns all tasks that match the given parameters
 
 $collection->toArray(): array — Converts the task collection to an associative array
 

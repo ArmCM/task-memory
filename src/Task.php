@@ -56,6 +56,11 @@ class Task
         return $this->status;
     }
 
+    public function matches(string $attribute, string|int $value): bool
+    {
+        return $this->toArray()[$attribute] === $value;
+    }
+
     public function toArray(): array
     {
         return [

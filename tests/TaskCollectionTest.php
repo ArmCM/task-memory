@@ -7,6 +7,7 @@ use ArmCm\TaskMemory\TaskCollection;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class TaskCollectionTest extends TestCase
 {
@@ -31,18 +32,6 @@ class TaskCollectionTest extends TestCase
         $taskCollection->add([$taskA, $taskB, $taskC]);
 
         $this->assertEquals(3, $taskCollection->count());
-    }
-
-    #[Test]
-    public function throw_exception_when_adding_invalid_task()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Only Task instances are allowed.');
-
-        $taskCollection = new TaskCollection();
-        $invalidTask = new \stdClass();
-
-        $taskCollection->add([$invalidTask]);
     }
 
     #[Test]
@@ -73,7 +62,7 @@ class TaskCollectionTest extends TestCase
     }
 
     #[Test]
-    public function can_filter_task_by_status()
+    public function can_find_by_attribute_id()
     {
         $pendingTask = new Task('example title A', 'example description A');
         $startedTask = new Task('example title B', 'example description B');
@@ -86,7 +75,79 @@ class TaskCollectionTest extends TestCase
 
         $taskCollection->add([$pendingTask, $startedTask, $doneTask]);
 
-        $result = $taskCollection->filterByStatus('pending');
+        $result = $taskCollection->findBy('id', 1);
+
+        $this->assertEquals([
+            'id' => 1,
+            'title' => 'example title A',
+            'description' => 'example description A',
+            'status' => 'pending',
+        ], $result[0]->toArray());
+    }
+
+    #[Test]
+    public function can_find_by_attribute_title()
+    {
+        $pendingTask = new Task('example title A', 'example description A');
+        $startedTask = new Task('example title B', 'example description B');
+        $doneTask = new Task('example title C', 'example description C');
+
+        $doneTask->done();
+        $startedTask->starting();
+
+        $taskCollection = new TaskCollection();
+
+        $taskCollection->add([$pendingTask, $startedTask, $doneTask]);
+
+        $result = $taskCollection->findBy('title', 'example title A');
+
+        $this->assertEquals([
+            'id' => 1,
+            'title' => 'example title A',
+            'description' => 'example description A',
+            'status' => 'pending',
+        ], $result[0]->toArray());
+    }
+
+    #[Test]
+    public function can_find_by_attribute_description()
+    {
+        $pendingTask = new Task('example title A', 'example description A');
+        $startedTask = new Task('example title B', 'example description B');
+        $doneTask = new Task('example title C', 'example description C');
+
+        $doneTask->done();
+        $startedTask->starting();
+
+        $taskCollection = new TaskCollection();
+
+        $taskCollection->add([$pendingTask, $startedTask, $doneTask]);
+
+        $result = $taskCollection->findBy('description', 'example description B');
+
+        $this->assertEquals([
+            'id' => 2,
+            'title' => 'example title B',
+            'description' => 'example description B',
+            'status' => 'in progress',
+        ], $result[0]->toArray());
+    }
+
+    #[Test]
+    public function can_find_by_attribute_status()
+    {
+        $pendingTask = new Task('example title A', 'example description A');
+        $startedTask = new Task('example title B', 'example description B');
+        $doneTask = new Task('example title C', 'example description C');
+
+        $doneTask->done();
+        $startedTask->starting();
+
+        $taskCollection = new TaskCollection();
+
+        $taskCollection->add([$pendingTask, $startedTask, $doneTask]);
+
+        $result = $taskCollection->findBy('status','pending');
 
         $this->assertEquals([
             'id' => 1,
@@ -100,7 +161,7 @@ class TaskCollectionTest extends TestCase
     public function throws_exception_when_status_is_empty()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Not allowed empty status.');
+        $this->expectExceptionMessage('Not allowed empty value.');
 
         $pendingTask = new Task('example title A', 'example description A');
 
@@ -108,31 +169,7 @@ class TaskCollectionTest extends TestCase
 
         $taskCollection->add($pendingTask);
 
-        $taskCollection->filterByStatus(' ');
-    }
-
-    #[Test]
-    public function can_filter_task_by_id()
-    {
-        $pendingTask = new Task('example title A', 'example description A');
-        $startedTask = new Task('example title B', 'example description B');
-        $doneTask = new Task('example title C', 'example description C');
-
-        $doneTask->done();
-        $startedTask->starting();
-
-        $taskCollection = new TaskCollection();
-
-        $taskCollection->add([$pendingTask, $startedTask, $doneTask]);
-
-        $result = $taskCollection->filterById(1);
-
-        $this->assertEquals([
-            'id' => 1,
-            'title' => 'example title A',
-            'description' => 'example description A',
-            'status' => 'pending',
-        ], $result[0]->toArray());
+        $taskCollection->findBy('status', '');
     }
 
     #[Test]
@@ -147,7 +184,64 @@ class TaskCollectionTest extends TestCase
 
         $taskCollection->add($pendingTask);
 
-        $taskCollection->filterById(-1);
+        $taskCollection->findBy('id', -1);
+    }
+
+    #[Test]
+    public function throws_exception_when_title_is_invalid()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Not allowed empty value.');
+
+        $pendingTask = new Task('example title A', 'example description A');
+
+        $taskCollection = new TaskCollection();
+
+        $taskCollection->add($pendingTask);
+
+        $taskCollection->findBy('title', '');
+    }
+
+    #[Test]
+    public function throws_exception_when_description_is_invalid()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Not allowed empty value.');
+
+        $pendingTask = new Task('example title A', 'example description A');
+
+        $taskCollection = new TaskCollection();
+
+        $taskCollection->add($pendingTask);
+
+        $taskCollection->findBy('description', '');
+    }
+
+    #[Test]
+    public function throws_exception_when_pass_an_no_existent_record()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No records found matching.');
+
+        $pendingTask = new Task('example title A', 'example description A');
+
+        $taskCollection = new TaskCollection();
+
+        $taskCollection->add($pendingTask);
+
+        $taskCollection->findBy('title', 'non-existent-record');
+    }
+
+    #[Test]
+    public function throw_exception_when_adding_invalid_task()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Only Task instances are allowed.');
+
+        $taskCollection = new TaskCollection();
+        $invalidTask = new \stdClass();
+
+        $taskCollection->add([$invalidTask]);
     }
 
     #[Test]

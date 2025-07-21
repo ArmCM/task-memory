@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) The Hive Team
+Copyright (c) ArmCM/challenge
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

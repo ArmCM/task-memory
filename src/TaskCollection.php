@@ -28,24 +28,19 @@ class TaskCollection
         return $this->tasks;
     }
 
-    public function filterByStatus(string $status): array
+    public function findBy(string $attribute, string|int $value): array
     {
-        $this->validateStatus($status);
+        $this->validate($attribute, $value);
 
-        return $this->filter( function (Task $task) use ($status) {
-            return $task->currentStatus() === $status;
+        $matches = $this->filter(function (Task $task) use ($attribute, $value) {
+            return $task->matches($attribute, $value);
         });
-    }
 
-    public function filterById(int $id): array
-    {
-        if ($id <= 0) {
-            throw new InvalidArgumentException('Invalid id.');
+        if (empty($matches)) {
+            throw new \RuntimeException('No records found matching.');
         }
 
-        return $this->filter( function (Task $task) use ($id) {
-            return $task->id() === $id;
-        });
+        return $matches;
     }
 
     public function count(): int
@@ -70,14 +65,47 @@ class TaskCollection
         return json_encode($this->toArray());
     }
 
+    private function validate(string $attribute, string|int $value): void
+    {
+        match($attribute) {
+            'status' => $this->validateStatus($value),
+            'id' => $this->validateId($value),
+            'title' => $this->validateTitle($value),
+            'description' => $this->validateDescription($value),
+            default => null,
+        };
+    }
+
     private function validateStatus(string $status): void
     {
-        if (empty(trim($status))) {
-            throw new InvalidArgumentException('Not allowed empty status.');
-        }
+        $this->validateNotEmpty($status);
 
         if (!in_array($status, ['pending', 'done', 'in progress'], true)) {
             throw new InvalidArgumentException('Invalid status.');
+        }
+    }
+
+    private function validateTitle(string $title): void
+    {
+        $this->validateNotEmpty($title);
+    }
+
+    private function validateDescription(string $description): void
+    {
+        $this->validateNotEmpty($description);
+    }
+
+    private function validateId(int $id): void
+    {
+        if ($id <= 0) {
+            throw new InvalidArgumentException('Invalid id.');
+        }
+    }
+
+    private function validateNotEmpty($value): void
+    {
+        if (empty(trim($value))) {
+            throw new InvalidArgumentException("Not allowed empty value.");
         }
     }
 
